@@ -23,7 +23,7 @@ class MultiHeadAttention(nn.Module):
         - dropout (float): Attention Dropout 层的丢弃率
         
         内部属性:
-        - self.d_k (int): 每个注意力头的输入和输出的维度，等于 d_model // num_heads
+        - d_k (int): 每个注意力头的输入和输出的维度，等于 d_model // num_heads
         - W_q, W_k, W_v (nn.Linear): 分别用于对输入的 Query、Key、Value 进行线性变换，生成各头所需的表示
         - W_o (nn.Linear): 将多头输出拼接后的结果映射回原始 d_model 维度
         """
