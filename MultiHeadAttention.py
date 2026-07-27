@@ -145,10 +145,11 @@ if __name__ == "__main__":
     # 再构建形状为 [B] 的张量。该张量表示每个序列有效 token 的长度
     src_valid_len = torch.tensor([5, 3])  # [B] 第一个样本长度5（全有效），第二个长度3（后2个是padding）
     # 对 src_seq_index 和 src_valid_len 各自插入新的维度，使其形状分别变为 [1, L_kv] 和 [B, 1]，进而满足广播条件
-    # 检验两个张量可否广播的方法：
+    # 检验两个张量的直接运算可否正常隐式广播的方法：
     # 取出二者的形状元组，右对齐。如果元组长度不同则在短的元组左侧添加 1，直到相等
-    # 逐一比较两个形状元组中的元素，如果二者相同或者其中一个为 1，则说明当前维度可以广播
-    # 如果所有维度都可以广播，则说明这两个张量可以广播，否则不可广播，需要进行一定的维度调整
+    # 逐一比较两个形状元组中的元素，如果二者相同或者其中一个为 1，则说明当前维度可以隐式广播
+    # 如果所有维度都可以隐式广播，则说明这两个张量可以隐式广播，否则不可隐式广播，需要调用unsqueeze()方法进行维度调整
+    # 另外，还可以直接调用torch.broadcast_shapes(shape1, shape2, ..., shapeN)来判断，如果报错则意味着不可以隐式广播，否则会返回广播后的形状
     padding_mask = src_seq_index.unsqueeze(0) < src_valid_len.unsqueeze(1)  # [B=2, L_kv=5]，其中 0 代表需要mask
     # 转换为与 attn_scores 兼容的形状：[B, 1, 1, L_kv] → 广播到所有 heads 和 queries
     padding_mask = padding_mask.unsqueeze(1).unsqueeze(1)  # [B, 1, 1, L_kv]
